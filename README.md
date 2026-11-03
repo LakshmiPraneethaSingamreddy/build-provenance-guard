@@ -133,14 +133,44 @@
      two off the response, so leaving them out costs you next unit's
      diagnostics. -->
 
+
+
 ```bash
-$ curl -X POST http://127.0.0.1:5000/submit \
-  -H "Content-Type: application/json" \
-  -d '{"text": "...", "creator_id": "..."}'
+$ curl.exe -X POST http://127.0.0.1:5000/submit -H "Content-Type: application/json" -d '{\"text\": \"Maya found a tiny glowing key beneath the old oak tree.\nIt unlocked a forgotten door hidden behind the garden wall.\nInside, she discovered a room filled with stars.\nFrom that day on, Maya became the keeper of the night sky.\", \"creator_id\": \"student_demo_ai\"}' 
 ```
 
 ```json
+{
+"confidence": 0.5644,
+"content_id": "c_d993d4456542",
+"creator_id": "student_demo_ai",
+"guess": "unsure",
+"label": "not build yet",
+"model_score": 0.5644,
+"style_score": null
+}
+```
+```bash
+curl.exe -X GET http://127.0.0.1:5000/log
+```
 
+```json
+{
+"count": 1,
+"entries": [
+{
+     "combined_score": null,
+     "content_id": "c_d993d4456542",
+     "creator_id": "student_demo_ai",
+     "guess": null,
+     "label": null,
+     "model_score": 0.5644,
+     "status": "decided",
+     "style_score": null,
+     "timestamp": "2026-11-03T17:42:10+00:00"
+}
+]
+}
 ```
 
 **An appeal**

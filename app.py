@@ -199,13 +199,42 @@ def submit():
     what should this do when `text` is missing, empty, or enormous? A crash on
     a malformed input is one of the most common real failures there is.
     """
+    #wiring the signal - detector.py
+    import detector
+
+    #pulling text and creator_id from JSON payload
+    payload = request.get_json(silent = True) or {}
+    text = payload.get("text")
+    creator_id = payload.get("creator_id", "unknown")
+
     
+
+    if not isinstance(text, str) or not text.strip():
+        return jsonify({
+            "error": "invalid_input",
+            "message": "The 'text' field is missing or empty.Send JSON with non-empty \"text\".",
+        }), 400
+    model_score = detector.model_signal(text)
+
+    #using uuid library for assigning content id
+    content_id = f"c_{uuid.uuid4().hex[:12]}"
+
+    #logging the decision in audit log
+    audit.log_decision(
+        content_id=content_id,
+        creator_id=creator_id,
+        model_score=model_score,
+        status='decided',
+    )
+
+    #checking whether route answers or not
     return jsonify({
-        "content_id": "hardcoded",
+        "content_id": content_id,
+        "creator_id": creator_id,
         "guess": "unsure",
-        "confidence": 0.5,
+        "confidence": model_score,
         "label": "not build yet",
-        "model_score": None,
+        "model_score": model_score,
         "style_score": None,
 
     }),200
