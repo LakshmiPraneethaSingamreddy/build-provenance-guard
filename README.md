@@ -35,37 +35,49 @@
 <!-- ═══════════════════════ UNIT 7 — THE BUILD ═══════════════════════ -->
 
 ## What This Does
-
-<!-- The path a submission takes, from arriving to the label a reader sees.
-     Six or seven steps — this is the trace you wrote in Milestone 1. -->
+     The request is recieved by app.py which acceps json containing text and creator_id. Then it reads both fields and creates the content_id. Then text is passed to detector.py to analyze the text and produce model_score and also to stylometry.py to measure the writing and produce the style_score. Then both style_score and model_score are combined to generate a confidence score and the confidence score is converted into reader facing ouput and the decision is logged and result is returned to the user.
 
 
 
 ---
 
+## End Points
+### `/submit` 
+     The input goes in through this end point and the shape of the input is:
+     {
+          "text": "....",
+          "creator_id": "..."
+     }
+
+### `/appeal`
+     The output is presented to the user with this endpoint and the shape of output is:
+     {
+          "content_id": "...",
+          "model_score": 0.0,
+          "style_score": 0.0,
+          "confidence": 0.0,
+          "guess": "...",
+          "label": "..."
+     }
+
+
 ## Signals and Scoring
-
-<!-- For each signal: what property it measures, why that might differ between
-     human and AI writing, and WHAT IT CAN'T SEE.
-
-     The blind spot is not optional. If you can't name it you don't understand
-     the signal yet — and unit 8's attack set is built out of blind spots. -->
 
 ### Signal one — the model signal
 
-**What it measures:**
+**What it measures:** model score, which is how predictable the text is to a language model
 
-**Why that might differ between human and AI writing:**
+**Why that might differ between human and AI writing:** Generally AI generated text often have some common word patterns and predictable sentence structures whereas HUman writings have some unexpected word choices and sentence structure changes.
 
-**What it can't see:**
+**What it can't see:** It don't know who wrote the text and can only measure its predictability. So, sometimes it might wrongly predict that text is AI generated eventhough it was written by human.
 
 ### Signal two — the style signal
 
-**What it measures:**
+**What it measures:** style score, which is determined by examining the writing, sentence length variation, vocabulary variations and punctuations used.
 
-**Why that might differ between human and AI writing:**
+**Why that might differ between human and AI writing:** Human often use different sentence lengths and words when writing, but AI generates the sentences that are mostly have same length and repeated vocabulary and consistent punctuations.
 
-**What it can't see:**
+**What it can't see:** It cannot understand the underlying meaning of the text. So just by changing some words aor punctations can affect the score.
 
 ### The combining rule
 
