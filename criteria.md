@@ -1,103 +1,40 @@
 # Acceptance criteria — Provenance Guard
+---
+## 1. Out of 5 pieces I wrote myself atmost only 1 of them should receive highly-AI label.
 
-Five criteria that say what "working" means for this service, written in unit 7
-**before** you built it.
-
-**All five are yours.** None are given.
-
-An acceptance criterion names a number or something plainly observable. *"The
-detector is accurate"* is an opinion — and perfect AI detection isn't possible
-anyway, so it's an opinion about something nobody can deliver. *"Of 10 pieces I
-wrote myself, at most 1 is labelled high-confidence AI"* is a criterion.
-
-Under each, write a sentence or two on **why that target**. *"I allow at most 1
-false positive in 10 because on a writing site a wrong accusation costs more
-than a missed detection"* is a real answer.
-
-> Missing your own targets next unit costs you nothing. Setting a target so
-> easy you can't miss it does.
+**Why this target:**
+Because human writing can sometimes be simple and predictable, the system may mistake it for AI-generated text. Limiting high-confidence AI labels to no more than 1 out of 5 human-written samples helps reduce unfair accusations.
 
 ---
 
-## Pick numbers you can defend
-
-**Cover at least three of these five areas.** They're prompts, not a form.
-
-| Area | A question it could answer |
-|---|---|
-| False positives | How often may a human's writing get called AI? |
-| Score spread | How far apart should clearly-AI and clearly-human text score? |
-| Label coverage | Is every one of your three labels actually reachable? |
-| The appeal path | Does an appeal always change status and always get recorded? |
-| Bad input | What happens when `text` is missing, empty, or enormous? |
-
-Two things worth knowing before you pick numbers:
-
-- **The expensive mistake is one-sided.** Missing some AI text costs the site a
-  little. Accusing a real writer costs that person a lot. A criterion that
-  treats both errors as equally bad is describing a system nobody would ship.
-- **Unit 8 tests across three trials, and the target has to hold across all
-  three.** Your first signal runs a model, so identical input can score
-  differently twice. A target of "at most 1 in 10" against trials of 2, 1, 2 is
-  a **miss**.
-
----
-## 1.
-
-<!-- Your criterion. It must name a number. -->
-
+## 2. For 3 of 3 invalid cases, which have missing text, empty text or text: null, the service should return a clear error response instead of attempting classification and each response should explain there is no text to analyze.
 
 
 **Why this target:**
-
-
-
----
-
-## 2.
-
-<!-- Your criterion. -->
-
-
-
-**Why this target:**
-
+A missing, empty, or null text value cannot be analyzed. The service should clearly explain that there is no text to classify instead of attempting to generate misleading scores or labels.
 
 
 ---
 
-## 3.
-
-<!-- Your criterion. -->
-
-
+## 3. Across five test cases, the system should produce all three labels—human, ai, and unsure—at least once.
 
 **Why this target:**
+All three labels—human, unsure, and ai—must be reachable across the test submissions. This confirms that the score thresholds work correctly and that the system can represent different levels of confidence
 
+---
+
+## 4. For all 5 of 5 valid appeal cases, every appeal should return a successful response, change the submission status to under_review and create an appeal entry in the audit log.
+
+**Why this target:**
+Users should have a way to challenge an incorrect classification. Every valid appeal should change the submission status to under_review and create an audit-log entry so the appeal can be tracked.
 
 
 ---
 
-## 4.
-
-<!-- Your criterion. -->
-
-
+## 5. For atlest 4 of 5 cases, the absolute difference between model_score and style_score should be less than 0.30.
 
 **Why this target:**
-
-
-
----
-
-## 5.
-
-<!-- Your criterion. -->
-
-
-
-**Why this target:**
-
+The model and style scores look at different parts of the same text, so they may not always match exactly. Getting their difference below `0.30` in at least 4 out of 5 cases shows that they usually give reasonable results. If the scores differ a lot, it might indicate that one signal might be affected by its blind spot.
 
 
 ---
