@@ -122,6 +122,8 @@ def style_signal(text: str) -> float:
     ai_like_spread = 1.0 - spread
     ai_like_vocabulary = 1.0 - vocabulary
 
+    
+
     return round(
         (ai_like_spread + ai_like_vocabulary + punctuation) / 3.0,
         4,

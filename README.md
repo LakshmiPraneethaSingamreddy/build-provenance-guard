@@ -95,22 +95,14 @@ If the model_score is 0.8 and the style score is 0.2, then the combined score wi
 ---
 
 ## Label Variants
-
-<!-- The exact text of all three labels, as a reader would see them, and the
-     score range each covers.
-
-     Write them for someone who has never heard the word "threshold". -->
-
 | Label | Score range | The exact text a reader sees |
 |---|---|---|
-| high-confidence human |  |  |
-| unsure |  |  |
-| high-confidence AI |  |  |
+| high-confidence human | 0.0 - 0.35 | We think that it is written by Human |
+| unsure | 0.36 - 0.64 | We are not certain who wrote this text, so we are marking it as unsure. |
+| high-confidence AI | 0.65 - 1.0 | We think that this is written by AI  |
 
 **Why I worded the "unsure" one this way:**
-<!-- It's the hardest of the three. It has to admit uncertainty without
-     sounding like an accusation, because the person reading it may well have
-     written every word themselves. -->
+I worded the unsure label this way because a person may write in a plain and predictable style, which can produce a high model score. Since the model score has more influence in my combining rule, the system could incorrectly classify some human writing as AI. The unsure label acknowledges this uncertainty without accusing the writer.
 
 
 
@@ -118,66 +110,66 @@ If the model_score is 0.8 and the style score is 0.2, then the combined score wi
 
 ## Sample Run
 
-<!-- One submission and one appeal, pasted as text: the request, the response,
-     and the log entries. -->
-
 **A submission**
 
-<!-- The response needs content_id, guess, confidence, label, AND both
-     signal scores - model_score and style_score. Unit 8's tools read those
-     two off the response, so leaving them out costs you next unit's
-     diagnostics. -->
-
-
-
 ```bash
-$ curl.exe -X POST http://127.0.0.1:5000/submit -H "Content-Type: application/json" -d '{\"text\": \"Maya found a tiny glowing key beneath the old oak tree.\nIt unlocked a forgotten door hidden behind the garden wall.\nInside, she discovered a room filled with stars.\nFrom that day on, Maya became the keeper of the night sky.\", \"creator_id\": \"student_demo_ai\"}' 
+$ curl.exe -X POST http://127.0.0.1:5000/submit -H "Content-Type: application/json" -d '{\"text\": \"Maya found a tiny glowing key beneath the old oak tree.\nIt unlocked a forgotten door hidden behind the garden wall.\nInside, she discovered a room filled with stars.\nFrom that day on, Maya became the keeper of the night sky.\", \"creator_id\": \"student_demo_ai_1\"}' 
 ```
 
 ```json
 {
-"confidence": 0.5644,
-"content_id": "c_d993d4456542",
-"creator_id": "student_demo_ai",
-"guess": "unsure",
-"label": "not build yet",
-"model_score": 0.5644,
-"style_score": null
+  "confidence": 0.537,
+  "content_id": "c_07964e3e4cd4",
+  "creator_id": "student_demo_ai_1",
+  "guess": "unsure",
+  "label": "We are not certain who wrote this text, so we are marking it as unsure.",
+  "model_score": 0.5644,
+  "style_score": 0.4971
 }
 ```
 ```bash
-curl.exe -X GET http://127.0.0.1:5000/log
+$ curl.exe -X GET http://127.0.0.1:5000/log?limit=1
 ```
 
 ```json
 {
-"count": 1,
-"entries": [
-{
-     "combined_score": null,
-     "content_id": "c_d993d4456542",
-     "creator_id": "student_demo_ai",
-     "guess": null,
-     "label": null,
-     "model_score": 0.5644,
-     "status": "decided",
-     "style_score": null,
-     "timestamp": "2026-11-03T17:42:10+00:00"
-}
-]
+  "count": 1,
+  "entries": [
+    {
+      "combined_score": 0.537,
+      "content_id": "c_07964e3e4cd4",
+      "creator_id": "student_demo_ai_1",
+      "guess": "unsure",
+      "label": "We are not certain who wrote this text, so we are marking it as unsure.",
+      "model_score": 0.5644,
+      "status": "decided",
+      "style_score": 0.4971,
+      "timestamp": "2026-11-04T02:03:12+00:00"
+    }
+  ]
 }
 ```
 
 **An appeal**
 
 ```bash
-$ curl -X POST http://127.0.0.1:5000/appeal \
-  -H "Content-Type: application/json" \
-  -d '{"content_id": "...", "reasoning": "..."}'
+$ curl.exe -X POST http://127.0.0.1:5000/appeal -H "Content-Type: application/json" -d '{\"content_id\": \"c_07964e3e4cd4\", \"reasoning\": \"I wrote this text myself and believe the classification is incorrect.\"}' 
 ```
 
 ```json
-
+{
+  "appeal": {
+    "content_id": "c_07964e3e4cd4",
+    "creator_id": "student_demo_ai_1",
+    "event": "appeal",
+    "reasoning": "I wrote this text myself and believe the classification is incorrect.",
+    "status": "under_review",
+    "timestamp": "2026-11-04T02:04:53+00:00"
+  },
+  "content_id": "c_07964e3e4cd4",
+  "message": "Your appeal has been recorded and is under review.",
+  "status": "under_review"
+}
 ```
 
 **What the log shows afterwards**
@@ -187,7 +179,38 @@ $ curl "http://127.0.0.1:5000/log?limit=3"
 ```
 
 ```json
-
+{                                                                                   
+  "count": 3,
+  "entries": [
+    {
+      "content_id": "c_22082132e6f4",
+      "creator_id": "student_demo_ai",
+      "event": "appeal",
+      "reasoning": "I wrote this text myself and believe the classification is incorrect.",
+      "status": "under_review",
+      "timestamp": "2026-11-04T02:02:01+00:00"
+    },
+    {
+      "combined_score": 0.537,
+      "content_id": "c_07964e3e4cd4",
+      "creator_id": "student_demo_ai_1",
+      "guess": "unsure",
+      "label": "We are not certain who wrote this text, so we are marking it as unsure.",
+      "model_score": 0.5644,
+      "status": "decided",
+      "style_score": 0.4971,
+      "timestamp": "2026-11-04T02:03:12+00:00"
+    },
+    {
+      "content_id": "c_07964e3e4cd4",
+      "creator_id": "student_demo_ai_1",
+      "event": "appeal",
+      "reasoning": "I wrote this text myself and believe the classification is incorrect.",
+      "status": "under_review",
+      "timestamp": "2026-11-04T02:04:53+00:00"
+    }
+  ]
+}
 ```
 
 ---
@@ -196,15 +219,15 @@ $ curl "http://127.0.0.1:5000/log?limit=3"
 
 **Moment 1**
 
-- *What I asked for:*
-- *What came back:*
-- *What I changed:*
+- *What I asked for:* I have asked AI to help me understnad some code and what exactly it is doing.
+- *What came back:* It gave clear line by line explanation of the code which helped me understand the code
+- *What I changed:* Nothing
 
 **Moment 2**
 
-- *What I asked for:*
-- *What came back:*
-- *What I changed:*
+- *What I asked for:* I have asked for help in building the punctuation_density function in stylometry.py
+- *What came back:* It gave the code for the function but with the density counted for the whole text.
+- *What I changed:* Sometimes the text might be very large, the density will be very small and contributes nothing, so I changed the logic so that it calculates punctuation_density for every 100 words to be fair.
 
 <!-- ═══════════════════════ UNIT 8 — THE TEST ═══════════════════════ -->
 
