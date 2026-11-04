@@ -67,7 +67,7 @@
 
 **What it measures:** model score, which is how predictable the text is to a language model
 
-**Why that might differ between human and AI writing:** Generally AI generated text often have some common word patterns and predictable sentence structures whereas HUman writings have some unexpected word choices and sentence structure changes.
+**Why that might differ between human and AI writing:** Generally AI generated text often have some common word patterns and predictable sentence structures whereas Human writings have some unexpected word choices and sentence structure changes.
 
 **What it can't see:** It don't know who wrote the text and can only measure its predictability. So, sometimes it might wrongly predict that text is AI generated eventhough it was written by human.
 
@@ -77,24 +77,19 @@
 
 **Why that might differ between human and AI writing:** Human often use different sentence lengths and words when writing, but AI generates the sentences that are mostly have same length and repeated vocabulary and consistent punctuations.
 
-**What it can't see:** It cannot understand the underlying meaning of the text. So just by changing some words aor punctations can affect the score.
+**What it can't see:** It cannot understand the underlying meaning of the text. So just by changing some words or punctations can affect the score.
 
 ### The combining rule
 
-<!-- Write the rule in words, then give the numbers. What happens when the two
-     signals disagree? -->
+**The rule:** 
+I will combine the model score and style score into one score. The model score will have slightly more influence because it measures how predictable the text is to a language model. If the two scores disagree, the combined score will move toward in the unsure range instead of making a confident decision based on only one signal, it will label it as `unsure`.
 
-**The rule:**
-
-**The numbers:**
+**The numbers:** model_score weight - 0.6 and style_score weight - 0.4
 
 **Where it lives:** `scoring.py::combine_signals`
 
-<!-- ⚠️ The grader checks your code against that line. If your rule lives
-     somewhere else, say where. -->
-
 **A case where my two signals split, and what my rule does with it:**
-
+If the model_score is 0.8 and the style score is 0.2, then the combined score will be 0.6(0.8) + 0.4(0.2) = 0.56. Since it is in the middle, it will label it as `unsure`.
 
 
 ---

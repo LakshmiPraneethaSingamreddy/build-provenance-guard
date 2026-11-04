@@ -201,6 +201,8 @@ def submit():
     """
     #wiring the signal - detector.py
     import detector
+    import stylometry
+    import scoring
 
     #pulling text and creator_id from JSON payload
     payload = request.get_json(silent = True) or {}
@@ -215,6 +217,8 @@ def submit():
             "message": "The 'text' field is missing or empty.Send JSON with non-empty \"text\".",
         }), 400
     model_score = detector.model_signal(text)
+    style_score = stylometry.style_signal(text)
+    combined_score = scoring.combine_signals(model_score, style_score)
 
     #using uuid library for assigning content id
     content_id = f"c_{uuid.uuid4().hex[:12]}"
@@ -222,6 +226,8 @@ def submit():
     #logging the decision in audit log
     audit.log_decision(
         content_id=content_id,
+        style_score=style_score,
+        combined_score=combined_score,
         creator_id=creator_id,
         model_score=model_score,
         status='decided',
@@ -232,22 +238,13 @@ def submit():
         "content_id": content_id,
         "creator_id": creator_id,
         "guess": "unsure",
-        "confidence": model_score,
+        "confidence": combined_score,
         "label": "not build yet",
         "model_score": model_score,
-        "style_score": None,
+        "style_score": style_score,
 
     }),200
-    # payload = request.get_json(silent=True) or {}
-    # # TODO: delete this and build the route.
-    # return jsonify({
-    #     "error": "not_implemented",
-    #     "message": "POST /submit isn't built yet — see the TODO in app.py.",
-    #     "you_sent": {
-    #         "text_length": len(payload.get("text", "")),
-    #         "creator_id": payload.get("creator_id"),
-    #     },
-    # }), 501
+
 
 
 @app.post("/appeal")
