@@ -235,24 +235,41 @@ $ curl "http://127.0.0.1:5000/log?limit=3"
 
 ## Rate Limiting
 
-**My limits:** ___ per minute, ___ per day
+**My limits:** 5 per minute, 50 per day
 
-**Why those numbers and not others:**
-<!-- Think about two people: a real writer submitting their own work a few
-     times an hour, and a script sending a thousand variations to map your
-     thresholds. Your numbers have to be liveable for the first and hostile to
-     the second. -->
+**Why those numbers and not others:** I chose 5 submissions per minute as limit because it allows short burts of submissions by user but also slows down the rapid automated submissions and I chose 50 submissions per day as limit because a real user should have enough capacity for normal experimentation but also stopping the rapid bulk submissions. 
 
-**What a caller counts as:** <!-- per address, or per creator_id? They fail
-differently — one script can look like a thousand callers, and one household
-can look like one. -->
+**What a caller counts as:** What a caller counts as: A caller is identified by its creator_id. Requests with a valid creator_id share that creator’s rate limits. If no valid creator_id is provided, the caller’s IP address is used instead.
 
 **The run of status codes when I pushed past it:**
 
-<!-- python run_attacks.py --flood 15 -->
+$ python run_attacks.py --flood 15
 
 ```
+15 submissions as 'flood_tester' against http://127.0.0.1:5000
+The first one is slow while the model loads.
 
+  [ 1/15] 200
+  [ 2/15] 200
+  [ 3/15] 200
+  [ 4/15] 200
+  [ 5/15] 200
+  [ 6/15] 200
+  [ 7/15] 429
+  [ 8/15] 429
+  [ 9/15] 429
+  [10/15] 429
+  [11/15] 429
+  [12/15] 429
+  [13/15] 429
+  [14/15] 429
+  [15/15] 429
+
+============================================================
+200 200 200 200 200 200 429 429 429 429 429 429 429 429 429
+============================================================
+
+9 of 15 were rate limited. 
 ```
 
 ---
