@@ -71,6 +71,9 @@ WEIGHT_STYLE_SIGNAL = 0.4
 # getting through. There is no setting that avoids the trade — only settings
 # that decide who pays for it.
 
+# HUMAN_THRESHOLD = 0.35 #original thresholds
+# AI_THRESHOLD = 0.65
+
 HUMAN_THRESHOLD = 0.5
 AI_THRESHOLD = 0.65
 
