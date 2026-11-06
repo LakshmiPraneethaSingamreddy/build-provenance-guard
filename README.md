@@ -862,10 +862,19 @@ that produced it:
 
 **Function produced it:** main()
 
+---
+| # | Criterion | Target | Verdict | How I decided |
+|---|---|---|---|---|
+| 1 | Out of 5 pieces I wrote myself atmost only 1 of them should receive highly-AI label. | 4 of 5 | MET |For all 5 of 5 cases none of them are labeled as highly confident AI |
+| 2 | For 3 of 3 invalid cases, which have missing text, empty text or text: null, the service should return a clear error response instead of attempting classification and each response should explain there is no text to analyze. | 3 of 3 | MET | For all the three cases with missing texts, the system returned a clear response of 400 without attempting to classify the empty text  |
+| 3 | Across five test cases, the system should produce all three labels—human, ai, and unsure—at least once. | 5 of 5 | MET | For all the 5 cases it labeled each of them with either one of the labels(human, unsure and ai) |
+| 4 | For all 5 of 5 valid appeal cases, every appeal should return a successful response, change the submission status to under_review and create an appeal entry in the audit log.| 5 of 5  | MET | For all the appeal cases, the submission status is written as under_review with a new log for every appeal in the audit_log |
+| 5 | For atlest 4 of 5 cases, the absolute difference between model_score and style_score should be less than 0.30. | 4 of 5 | MET | For 4 of 5 cases, the absolute difference ia almost around 0.1-0.2 which is <0.3 indicating that most of the times, the model_score and style_score are agreeing on the labeling of the text |
+
+
 ## **Diagnoses**
 All criteria were met, but the targets were somewhat lenient, especially criterion 1. None of my five original writing samples received the high-confidence AI label, so the official target passed. However, all five were classified as unsure instead of human. Because I wrote these stories myself, I expected them to be recognized as human writing. Four model scores were around 0.5–0.6, and the model signal has a larger weight (0.6) than the style signal (0.4), which contributed to the combined scores remaining in the unsure range. I would tighten criterion 1 by requiring at least 4 of 5 known human-written samples to receive the human label, while still allowing no more than 1 high-confidence AI label.
 
----
 
 ## The Improvement
 
