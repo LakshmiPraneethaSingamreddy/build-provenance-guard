@@ -58,6 +58,11 @@ def bodies_for(scenario):
     ]
 
 
+def appeal_bodies_for(scenario):
+    """Return submission bodies for scenarios that exercise /appeal."""
+    return list(scenario["appeals"])
+
+
 def describe(body):
     """A short, readable note of what was sent — for the report."""
     if set(body) == {"text", "creator_id"} and isinstance(body.get("text"), str):
@@ -113,21 +118,48 @@ def main():
         trials = []
         for trial in range(1, args.trials + 1):
             results = []
-            for i, body in enumerate(bodies_for(scenario), 1):
+            is_appeal = bool(scenario.get("appeals"))
+            inputs = appeal_bodies_for(scenario) if is_appeal else bodies_for(scenario)
+            for i, body in enumerate(inputs, 1):
                 preview = describe(body)
                 try:
                     response = requests.post(f"{args.url}/submit", json=body,
                                              timeout=args.timeout)
-                    payload = response.json() if response.content else {}
-                    results.append({
+                    submission = response.json() if response.content else {}
+                    result = {
                         "status": response.status_code,
-                        "guess": payload.get("guess"),
-                        "confidence": payload.get("confidence"),
-                        "model_score": payload.get("model_score"),
-                        "style_score": payload.get("style_score"),
-                        "label": payload.get("label"),
+                        "guess": submission.get("guess"),
+                        "confidence": submission.get("confidence"),
+                        "model_score": submission.get("model_score"),
+                        "style_score": submission.get("style_score"),
+                        "label": submission.get("label"),
                         "sent": preview,
-                    })
+                    }
+                    if is_appeal:
+                        content_id = submission.get("content_id")
+                        if not isinstance(content_id, str) or not content_id.strip():
+                            result["appeal"] = {
+                                "status": None,
+                                "error": "submission did not return a content_id",
+                            }
+                        else:
+                            appeal_response = requests.post(
+                                f"{args.url}/appeal",
+                                json={
+                                    "content_id": content_id,
+                                    "reasoning": scenario["appeal_reasoning"],
+                                },
+                                timeout=args.timeout,
+                            )
+                            result["appeal"] = {
+                                "status": appeal_response.status_code,
+                                "content_id": content_id,
+                                "response": (
+                                    appeal_response.json()
+                                    if appeal_response.content else {}
+                                ),
+                            }
+                    results.append(result)
                 except Exception as exc:  # noqa: BLE001
                     results.append({"status": None, "error": f"{type(exc).__name__}: {exc}",
                                     "sent": preview})
